@@ -5,14 +5,23 @@ namespace Example.Redis.Services
 {
     public class ProductService : IProductService
     {
+        private readonly IRedisService _redisService;
+        private readonly ILogger<ProductService> _logger;
+
+        public ProductService(IRedisService redisService, ILogger<ProductService> logger)
+        {
+            _redisService = redisService;
+            _logger = logger;
+        }
+
         public Task<bool> DeleteAsync(Guid id)
         {
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<Product>> GetAllAsync()
+        public async Task<IEnumerable<Product>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            return await _redisService.ListAsync<Product>("","").ConfigureAwait(false);
         }
 
         public Task<Product> GetByIdAsync(Guid id)
@@ -20,9 +29,9 @@ namespace Example.Redis.Services
             throw new NotImplementedException();
         }
 
-        public Task<bool> InsertAsync(Product product)
+        public async Task<bool> InsertAsync(Product product)
         {
-            throw new NotImplementedException();
+            return await _redisService.AddAsync("product", product, TimeSpan.FromMinutes(60)).ConfigureAwait(false);
         }
 
         public Task<bool> UpdateAsync(Product product)
