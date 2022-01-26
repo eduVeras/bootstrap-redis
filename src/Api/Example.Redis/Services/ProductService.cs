@@ -14,9 +14,13 @@ namespace Example.Redis.Services
             _logger = logger;
         }
 
-        public Task<bool> DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            throw new NotImplementedException();
+            _logger.LogInformation("DeleteAsync invoked with parameters: {id}", id);
+
+            var result = await _redisService.RemoveAsync("","",id).ConfigureAwait(false);
+
+            return result > 0;
         }
 
         public async Task<IEnumerable<Product>> GetAllAsync()
