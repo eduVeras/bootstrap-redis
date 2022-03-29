@@ -36,9 +36,10 @@ namespace Example.Redis.Services
                 e.FailureType);
         }
 
-        public Task<T> GetAsync<T>(string key)
+        public async Task<T> GetAsync<T>(string key)
         {
-            throw new NotImplementedException();
+            var result = await _connectionMultiplexer.GetDatabase().StringGetSetAsync(key,new RedisValue()).ConfigureAwait(false);
+            return default(T);
         }
 
         public Task<bool> AddAsync(string key, object value, TimeSpan expiresAt)
