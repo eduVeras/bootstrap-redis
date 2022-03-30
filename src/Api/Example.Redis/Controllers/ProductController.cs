@@ -1,4 +1,5 @@
-﻿using Example.Redis.Models;
+﻿using Example.Redis.Interfaces;
+using Example.Redis.Models;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -11,18 +12,20 @@ namespace Example.Redis.Controllers
     {
 
         private readonly ILogger<ProductController> _logger;
+        private readonly IRedisService _redisService;
+        private const string Key = "produto";
 
-        public ProductController(ILogger<ProductController> logger)
+        public ProductController(ILogger<ProductController> logger, IRedisService redisService)
         {
             _logger = logger;
+            _redisService = redisService;
         }
 
 
-        // GET: api/<ProductController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<IEnumerable<Product>> Get()
         {
-            return new string[] { "value1", "value2" };
+            return await _redisService.ListAsync<Product>(string.Empty,Key).ConfigureAwait(false);
         }
 
         // GET api/<ProductController>/5
@@ -34,14 +37,21 @@ namespace Example.Redis.Controllers
 
         // POST api/<ProductController>
         [HttpPost]
-        public void Post([FromBody] Product product)
-        {
+        public async Task<IActionResult> Post([FromBody] Product product)
+        {   
+            await _redisService.AddOnListAsync(Key,product).ConfigureAwait(false);
+
+            return Created("", new
+            {
+                success = true
+            });
         }
 
         // PUT api/<ProductController>/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] Product value)
         {
+            
         }
 
         // DELETE api/<ProductController>/5
