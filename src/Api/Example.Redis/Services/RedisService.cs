@@ -80,14 +80,14 @@ namespace Example.Redis.Services
 
             var values = await _db.ListRangeAsync($"{prefixKey}:{key}", 0, -1).ConfigureAwait(false);
 
-            return Array.ConvertAll(values, value => JsonConvert.DeserializeObject<T>(value)).ToList();
+            return Array.ConvertAll(values, value => JsonConvert.DeserializeObject<T>(value));
         }
 
-        public async Task<long> RemoveAsync(string prefixKey, string key, object value)
+        public async Task<long> RemoveAsync(string key, object value)
         {
             _logger.LogInformation("{MethodName} Removing key {RedisKey}", nameof(RemoveAsync), key);
 
-            return await _db.ListRemoveAsync($"{prefixKey}:{key}", new RedisValue(JsonConvert.SerializeObject(value))).ConfigureAwait(false);
+            return await _db.ListRemoveAsync(key, new RedisValue(JsonConvert.SerializeObject(value))).ConfigureAwait(false);
         }
 
         public async Task<T> RemoveFromListAsync<T>(string prefixKey, string key, int id)
@@ -129,6 +129,8 @@ namespace Example.Redis.Services
 
         public async Task KeyExpireAsync(string prefixKey, string key, DateTime date)
         {
+            _logger.LogInformation($"Expiring key {key}");
+
             await _db.KeyExpireAsync(new RedisKey($"{prefixKey}:{key}"), date).ConfigureAwait(false);
         }
     }
